@@ -122,7 +122,14 @@ def write_output_files(output_dir, output_filename_prefix, cut_samples, sample_r
 
 
 def split_audio(input_file, window_duration, silence_threshold):
-    output_filename_prefix = os.path.splitext(os.path.basename(input_file))[0]
+    # Get the basename without extension
+    basename = os.path.splitext(os.path.basename(input_file))[0]
+
+    # Set the output directory
+    output_subdir = os.path.join(output_dir, basename)
+
+    # Create the output directory if it doesn't exist
+    os.makedirs(output_subdir, exist_ok=True)
 
     input_filename = convert_to_wav(input_file)
 
@@ -136,9 +143,11 @@ def split_audio(input_file, window_duration, silence_threshold):
     window_silence = (e > silence_threshold for e in window_energy)
 
     cut_samples = find_cut_samples(window_silence, sample_rate, step_duration)
-    write_output_files(output_dir, output_filename_prefix, cut_samples, sample_rate, samples)
+    
+    # Write the output files into the new subdirectory
+    write_output_files(output_subdir, basename, cut_samples, sample_rate, samples)
 
-    return output_dir
+    return output_subdir
 
 
 # Set your desired output directory here
